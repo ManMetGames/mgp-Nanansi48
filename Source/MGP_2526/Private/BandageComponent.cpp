@@ -36,6 +36,7 @@ void UBandageComponent::InflictWound(EWoundSeverity Severity)
 }
 void UBandageComponent::TryStartBandaging()
 {
+
     if (bIsBandaging) return;
     if (!CurrentWound.bIsWounded)
     {
@@ -86,6 +87,7 @@ void UBandageComponent::EnterBandagingMode()
 {
     bIsBandaging = true;
     WrapsApplied = 0;
+
     // Switch to first-person bandage camera
     if (OwnerController && FirstPersonBandageCamera)
     {
@@ -103,6 +105,11 @@ void UBandageComponent::EnterBandagingMode()
     // Show arm mesh
     if (FirstPersonArmMesh)
         FirstPersonArmMesh->SetVisibility(true);
+
+    if (ACharacter* Owner = Cast<ACharacter>(GetOwner()))
+    {
+		Owner->GetMesh()->SetVisibility(false); // hide full body to prevent clipping with arm mesh
+	}
     // Lock movement — set input mode to UI+Game so mouse is free but game still runs
     if (OwnerController)
     {
@@ -116,8 +123,7 @@ void UBandageComponent::EnterBandagingMode()
     if (BandageHUDClass && OwnerController)
     {
         BandageHUDInstance = CreateWidget<UUserWidget>(OwnerController, BandageHUDClass);
-        if (BandageHUDInstance)
-            BandageHUDInstance->AddToViewport();
+		if (BandageHUDInstance) BandageHUDInstance->AddToViewport();
     }
     SpawnWoundDecal();
     OnBandagingStarted.Broadcast();
@@ -157,6 +163,11 @@ void UBandageComponent::ExitBandagingMode(bool bCompleted)
         OriginalCamera->SetActive(true);
     if (FirstPersonArmMesh)
         FirstPersonArmMesh->SetVisibility(false);
+
+    if (ACharacter* Owner = Cast<ACharacter>(GetOwner()))
+    {
+        Owner->GetMesh()->SetVisibility(true); // show full body again
+    }
     // Restore input
     if (OwnerController)
     {

@@ -64,7 +64,6 @@ AMGP_2526Character::AMGP_2526Character()
     //Wire up the two sub-components it needs
     BandageComponent->FirstPersonArmMesh = BandageArmMesh;
     BandageComponent->FirstPersonBandageCamera = BandageCamera;
-    //Note: assign WoundDecalMaterial, WrapDecalMaterial, and BandageHUDClass
     //in your Blueprint child class via the Details panel
 }
 
@@ -89,6 +88,11 @@ void AMGP_2526Character::SetupPlayerInputComponent(UInputComponent* PlayerInputC
             EnhancedInputComponent->BindAction(WrapAction, ETriggerEvent::Started, this,
                 &AMGP_2526Character::OnWrapClicked);
         }
+        if (DamageAction)
+        {
+            EnhancedInputComponent->BindAction(DamageAction, ETriggerEvent::Started, this,
+				&AMGP_2526Character::OnDamagePressed);
+		}
     }
     else
     {
@@ -140,6 +144,23 @@ void AMGP_2526Character::DoJumpEnd()
     StopJumping();
 }
 
+void AMGP_2526Character::BeginPlay()
+{
+    Super::BeginPlay();
+
+
+    if (HealthComponent)
+    {
+		HealthComponent->OnHealthChanged.AddDynamic(this, &AMGP_2526Character::OnHealthChanged);
+    }
+}
+
+void AMGP_2526Character::OnDamagePressed()
+{
+    if (!HealthComponent) return;
+        HealthComponent->TakeDamage(25.f);
+}
+
 //Bandage input handlers
 void AMGP_2526Character::OnHealPressed()
 {
@@ -149,6 +170,33 @@ void AMGP_2526Character::OnHealPressed()
         BandageComponent->CancelBandaging();
     else
         BandageComponent->TryStartBandaging();
+}
+
+void AMGP_2526Character::OnHealthChanged(float NewHealth, float Delta)
+{
+    // Only inflict wounds when taking damage, not when healing
+    if (Delta >= 0.f) return;
+
+    // Don't inflict a new wound if already wounded
+    if (BandageComponent->GetWoundData().bIsWounded) return;
+
+    float HealthPercent = NewHealth / HealthComponent->GetMaxHealth();
+
+    if (HealthPercent <= 0.25f)
+    {
+        // Below 25% — severe wound
+        BandageComponent->InflictWound(EWoundSeverity::Severe);
+    }
+    else if (HealthPercent <= 0.50f)
+    {
+        // Below 50% — moderate wound
+        BandageComponent->InflictWound(EWoundSeverity::Moderate);
+    }
+    else if (HealthPercent <= 0.75f)
+    {
+        // Below 75% — minor wound
+        BandageComponent->InflictWound(EWoundSeverity::Minor);
+    }
 }
 
 void AMGP_2526Character::OnWrapClicked()
@@ -162,3 +210,4 @@ void AMGP_2526Character::InflictWound(EWoundSeverity Severity)
     if (!BandageComponent) return;
     BandageComponent->InflictWound(Severity);
 }
+

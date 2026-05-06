@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/GameModeBase.h"
+#include "MGP_2526Character.h"
 #include "MGP_2526GameMode.generated.h"
 
 /**

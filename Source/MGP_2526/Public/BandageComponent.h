@@ -5,10 +5,12 @@
 #include "Components/ActorComponent.h"
 #include "WoundData.h"
 #include "BandageComponent.generated.h"
+
 class UCameraComponent;
 class USkeletalMeshComponent;
 class UDecalComponent;
 class APlayerController;
+
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnBandagingStarted);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnBandagingEnded, float, HealingApplied);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnWrapApplied, float, NewCoverage);

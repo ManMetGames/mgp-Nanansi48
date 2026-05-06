@@ -6,8 +6,6 @@
 // Sets default values for this component's properties
 UHealth::UHealth()
 {
-	//Disable the update as we dont need it
-	//PrimaryComponentTick.bCanEverTick = true;
 	HP = MaxHealth;
 }
 
@@ -26,21 +24,20 @@ void UHealth::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponen
 
 void UHealth::TakeDamage(float Damage)
 {
-	HP -= Damage;
-	if (HP < 0)
+	if (Damage <= 0.f || HP <= 0.f) return;
+
+	HP = FMath::Clamp(HP - Damage, 0.f, MaxHealth);
+	OnHealthChanged.Broadcast(HP, -Damage);
+
+	if (HP <= 0.f)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("I am hit"));
-		HP = 0;
-		// Tell interested classes we have died, as we are polite 
 		Died.Broadcast();
 	}
 }
 
-void UHealth::Heal(float Heal)
+void UHealth::Heal(float HealAmount)
 {
-	HP += Heal;
-	if (HP > MaxHealth)
-	{
-		HP = MaxHealth;
-	}
+	if (HealAmount <= 0.f || HP <= 0.f) return;
+	HP = FMath::Clamp(HP + HealAmount, 0.f, MaxHealth);
+	OnHealthChanged.Broadcast(HP, HealAmount);
 }

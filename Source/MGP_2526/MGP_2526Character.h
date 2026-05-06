@@ -16,8 +16,8 @@ struct FInputActionValue;
 
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
 
-UCLASS()
-class AMGP_2526Character : public ACharacter
+UCLASS(Blueprintable)
+class MGP_2526_API AMGP_2526Character : public ACharacter
 {
     GENERATED_BODY()
 
@@ -41,6 +41,7 @@ class AMGP_2526Character : public ACharacter
     //The bandage component
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
     UBandageComponent* BandageComponent;
+
 
 protected:
 
@@ -72,6 +73,11 @@ protected:
     //Wrap click
     UPROPERTY(EditAnywhere, Category = "Input")
     UInputAction* WrapAction;
+
+    //Damage Test Key
+    UPROPERTY(EditAnywhere, Category="Input")
+    UInputAction* DamageAction;
+
 
 public:
 
@@ -108,9 +114,19 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Health")
     void InflictWound(EWoundSeverity Severity);
 
+	virtual void DummyFunction() {}
+
 public:
 
     FORCEINLINE USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
     FORCEINLINE UCameraComponent* GetFollowCamera() const { return FollowCamera; }
     FORCEINLINE UBandageComponent* GetBandageComponent() const { return BandageComponent; }
+
+protected:
+
+	void BeginPlay() override;
+    void OnDamagePressed();
+
+    UFUNCTION()
+    void OnHealthChanged(float NewHealth, float Delta);
 };

@@ -8,18 +8,25 @@
 
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FYouDied);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnHealthChanged, float, NewHealth, float, Delta);
 
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class MGP_2526_API UHealth : public UActorComponent
 {
 	GENERATED_BODY()
 
+public:
+	UFUNCTION(BlueprintPure)
+	float GetMaxHealth() const { return MaxHealth; }
+	UPROPERTY(BlueprintAssignable, Category="Health")
+	FOnHealthChanged OnHealthChanged;
 private:
 	// make our variables private only the health script should deal with the health values
 	UPROPERTY(VisibleAnywhere, Category = "Health|MaxHealth")
 	float MaxHealth = 100.f;
 	UPROPERTY(VisibleAnywhere, Category = "Health|HP")
 	float HP= 0.f;
+
 
 public:
 	// Sets default values for this component's properties
