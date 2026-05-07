@@ -42,7 +42,6 @@ class MGP_2526_API AMGP_2526Character : public ACharacter
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
     UBandageComponent* BandageComponent;
 
-
 protected:
 
 

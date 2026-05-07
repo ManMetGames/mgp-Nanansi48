@@ -20,6 +20,8 @@ public:
 	float GetMaxHealth() const { return MaxHealth; }
 	UPROPERTY(BlueprintAssignable, Category="Health")
 	FOnHealthChanged OnHealthChanged;
+	UFUNCTION(BlueprintPure)
+	float GetHP() const { return HP; }
 private:
 	// make our variables private only the health script should deal with the health values
 	UPROPERTY(VisibleAnywhere, Category = "Health|MaxHealth")
@@ -36,7 +38,6 @@ protected:
 	virtual void BeginPlay() override;
 
 public:
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 	UFUNCTION(BlueprintCallable)
 	// function to take damage
 	virtual void TakeDamage(float damage);

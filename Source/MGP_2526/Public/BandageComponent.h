@@ -78,6 +78,12 @@ public:
     FOnBandagingEnded OnBandagingEnded;
     UPROPERTY(BlueprintAssignable)
     FOnWrapApplied OnWrapApplied;
+    //How many wraps one bandage roll provides
+    UPROPERTY(EditAnywhere, Category = "Bandage|Setup")
+    int32 WrapsPerBandage = 7;
+    //Wraps remaining in the current bandage roll
+    UPROPERTY(BlueprintReadOnly, Category="Bandage")
+    int32 WrapsRemainingInRoll = 0;
 protected:
     virtual void BeginPlay() override;
 private:

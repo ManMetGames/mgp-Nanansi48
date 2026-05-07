@@ -6,7 +6,6 @@
 // Sets default values for this component's properties
 UHealth::UHealth()
 {
-	HP = MaxHealth;
 }
 
 
@@ -14,12 +13,7 @@ UHealth::UHealth()
 void UHealth::BeginPlay()
 {
 	Super::BeginPlay();
-}
-
-
-void UHealth::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
-{
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+	HP = MaxHealth;
 }
 
 void UHealth::TakeDamage(float Damage)

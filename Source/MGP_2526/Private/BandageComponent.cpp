@@ -29,13 +29,19 @@ void UBandageComponent::BeginPlay()
 // Public Interface
 void UBandageComponent::InflictWound(EWoundSeverity Severity)
 {
-    if (CurrentWound.bIsWounded) return; // already wounded — extend or stack as needed
+    //Don't interrupt an active bandaging session
+    if (bIsBandaging) return;
+
+    //Allow re-inflicting wounds after healing
     ConfigureWoundFromSeverity(Severity);
     CurrentWound.bIsWounded = true;
     CurrentWound.CoveragePercent = 0.f;
 }
 void UBandageComponent::TryStartBandaging()
 {
+    UE_LOG(LogTemp, Warning, TEXT("BandageInventory: %d, IsWounded: %s"),
+        BandageInventory,
+        CurrentWound.bIsWounded ? TEXT("true") : TEXT("false"));
 
     if (bIsBandaging) return;
     if (!CurrentWound.bIsWounded)
@@ -45,33 +51,38 @@ void UBandageComponent::TryStartBandaging()
     }
     if (BandageInventory <= 0)
     {
+		BandageInventory = 0; // clamp to 0 to prevent negative inventory
         UE_LOG(LogTemp, Warning, TEXT("BandageComponent: No bandages left."));
         return;
     }
+
+    //Consume One bandage roll and set wraps for this session
+	BandageInventory--;
+	WrapsRemainingInRoll = WrapsPerBandage;
+	bIsBandaging = true;
+
     EnterBandagingMode();
 }
 void UBandageComponent::ApplyWrap()
 {
     if (!bIsBandaging) return;
-    if (BandageInventory <= 0)
+    if (WrapsRemainingInRoll <= 0)
     {
-        ExitBandagingMode(false);
+        ExitBandagingMode(true);
         return;
     }
     WrapsApplied++;
-    BandageInventory--;
+    WrapsRemainingInRoll--;
     // Update coverage — each wrap covers an equal fraction of the wound
     float CoveragePerWrap = 1.f / static_cast<float>(CurrentWound.WrapsRequired);
     CurrentWound.CoveragePercent = FMath::Clamp(
         WrapsApplied * CoveragePerWrap, 0.f, 1.f);
     SpawnWrapDecal(WrapsApplied - 1);
     OnWrapApplied.Broadcast(CurrentWound.CoveragePercent);
-    UE_LOG(LogTemp, Log, TEXT("Wrap %d applied. Coverage: %.0f%%"),
-        WrapsApplied, CurrentWound.CoveragePercent * 100.f);
     // End automatically when wound is fully covered OR bandages run out
     bool bFullyCovered = WrapsApplied >= CurrentWound.WrapsRequired;
-    bool bOutOfBandages = BandageInventory <= 0;
-    if (bFullyCovered || bOutOfBandages)
+    bool bOutOfWraps = WrapsRemainingInRoll <= 0;
+    if (bFullyCovered || bOutOfWraps)
     {
         ExitBandagingMode(true);
     }

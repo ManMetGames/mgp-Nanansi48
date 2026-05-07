@@ -177,22 +177,19 @@ void AMGP_2526Character::OnHealthChanged(float NewHealth, float Delta)
     // Only inflict wounds when taking damage, not when healing
     if (Delta >= 0.f) return;
 
-    // Don't inflict a new wound if already wounded
-    if (BandageComponent->GetWoundData().bIsWounded) return;
-
     float HealthPercent = NewHealth / HealthComponent->GetMaxHealth();
 
-    if (HealthPercent <= 0.25f)
+    if (HealthPercent < 0.26f)
     {
         // Below 25% — severe wound
         BandageComponent->InflictWound(EWoundSeverity::Severe);
     }
-    else if (HealthPercent <= 0.50f)
+    else if (HealthPercent < 0.51f)
     {
         // Below 50% — moderate wound
         BandageComponent->InflictWound(EWoundSeverity::Moderate);
     }
-    else if (HealthPercent <= 0.75f)
+    else if (HealthPercent < 0.76f)
     {
         // Below 75% — minor wound
         BandageComponent->InflictWound(EWoundSeverity::Minor);
