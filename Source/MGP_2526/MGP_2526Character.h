@@ -5,6 +5,8 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "Logging/LogMacros.h"
+#include "BandageComponent.h"
+#include "Health.h"
 #include "MGP_2526Character.generated.h"
 
 class USpringArmComponent;
@@ -14,83 +16,116 @@ struct FInputActionValue;
 
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
 
-/**
- *  A simple player-controllable third person character
- *  Implements a controllable orbiting camera
- */
-UCLASS(abstract)
-class AMGP_2526Character : public ACharacter
+UCLASS(Blueprintable)
+class MGP_2526_API AMGP_2526Character : public ACharacter
 {
-	GENERATED_BODY()
+    GENERATED_BODY()
 
-	/** Camera boom positioning the camera behind the character */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Components", meta = (AllowPrivateAccess = "true"))
-	USpringArmComponent* CameraBoom;
 
-	/** Follow camera */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Components", meta = (AllowPrivateAccess = "true"))
-	UCameraComponent* FollowCamera;
-	
-protected:
+    //Camera boom positioning the camera behind the character
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
+    USpringArmComponent* CameraBoom;
 
-	/** Jump Input Action */
-	UPROPERTY(EditAnywhere, Category="Input")
-	UInputAction* JumpAction;
+    //Follow camera
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
+    UCameraComponent* FollowCamera;
 
-	/** Move Input Action */
-	UPROPERTY(EditAnywhere, Category="Input")
-	UInputAction* MoveAction;
+    //First-person arm mesh shown only during bandaging
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
+    USkeletalMeshComponent* BandageArmMesh;
 
-	/** Look Input Action */
-	UPROPERTY(EditAnywhere, Category="Input")
-	UInputAction* LookAction;
+    //Camera that looks down at the arm during bandaging
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
+    UCameraComponent* BandageCamera;
 
-	/** Mouse Look Input Action */
-	UPROPERTY(EditAnywhere, Category="Input")
-	UInputAction* MouseLookAction;
-
-public:
-
-	/** Constructor */
-	AMGP_2526Character();	
+    //The bandage component
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
+    UBandageComponent* BandageComponent;
 
 protected:
 
-	/** Initialize input action bindings */
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
+    //Health component to track HP and death
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivate = "true"))
+    UHealth* HealthComponent;
+
+    //Jump Input Action
+    UPROPERTY(EditAnywhere, Category = "Input")
+    UInputAction* JumpAction;
+
+    //Move Input Action
+    UPROPERTY(EditAnywhere, Category = "Input")
+    UInputAction* MoveAction;
+
+    //Look Input Action
+    UPROPERTY(EditAnywhere, Category = "Input")
+    UInputAction* LookAction;
+
+    // Mouse Look Input Action
+    UPROPERTY(EditAnywhere, Category = "Input")
+    UInputAction* MouseLookAction;
+
+    //Heal key
+    UPROPERTY(EditAnywhere, Category = "Input")
+    UInputAction* HealAction;
+
+    //Wrap click
+    UPROPERTY(EditAnywhere, Category = "Input")
+    UInputAction* WrapAction;
+
+    //Damage Test Key
+    UPROPERTY(EditAnywhere, Category="Input")
+    UInputAction* DamageAction;
+
+
+public:
+
+    AMGP_2526Character();
 
 protected:
 
-	/** Called for movement input */
-	void Move(const FInputActionValue& Value);
+    virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-	/** Called for looking input */
-	void Look(const FInputActionValue& Value);
+protected:
 
-public:
+    void Move(const FInputActionValue& Value);
+    void Look(const FInputActionValue& Value);
 
-	/** Handles move inputs from either controls or UI interfaces */
-	UFUNCTION(BlueprintCallable, Category="Input")
-	virtual void DoMove(float Right, float Forward);
-
-	/** Handles look inputs from either controls or UI interfaces */
-	UFUNCTION(BlueprintCallable, Category="Input")
-	virtual void DoLook(float Yaw, float Pitch);
-
-	/** Handles jump pressed inputs from either controls or UI interfaces */
-	UFUNCTION(BlueprintCallable, Category="Input")
-	virtual void DoJumpStart();
-
-	/** Handles jump pressed inputs from either controls or UI interfaces */
-	UFUNCTION(BlueprintCallable, Category="Input")
-	virtual void DoJumpEnd();
+    //Input handlers for bandaging
+    void OnHealPressed();
+    void OnWrapClicked();
 
 public:
 
-	/** Returns CameraBoom subobject **/
-	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
+    UFUNCTION(BlueprintCallable, Category = "Input")
+    virtual void DoMove(float Right, float Forward);
 
-	/** Returns FollowCamera subobject **/
-	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
+    UFUNCTION(BlueprintCallable, Category = "Input")
+    virtual void DoLook(float Yaw, float Pitch);
+
+    UFUNCTION(BlueprintCallable, Category = "Input")
+    virtual void DoJumpStart();
+
+    UFUNCTION(BlueprintCallable, Category = "Input")
+    virtual void DoJumpEnd();
+
+    //Expose for Blueprint use if needed
+    UFUNCTION(BlueprintCallable, Category = "Health")
+    void InflictWound(EWoundSeverity Severity);
+
+	virtual void DummyFunction() {}
+
+public:
+
+    FORCEINLINE USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
+    FORCEINLINE UCameraComponent* GetFollowCamera() const { return FollowCamera; }
+    FORCEINLINE UBandageComponent* GetBandageComponent() const { return BandageComponent; }
+
+protected:
+
+	void BeginPlay() override;
+    void OnDamagePressed();
+
+    UFUNCTION()
+    void OnHealthChanged(float NewHealth, float Delta);
 };
-
