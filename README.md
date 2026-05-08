@@ -2,3 +2,4 @@
 # MGP_2526
  The assessment repo for 2526.
  My mechanic is a bandage wrapping mechanic wherein the player will take damage (Press T to take 25 damage) and they will be able to heal (Press H to start bandaging).When taking damage, the player will gain a "wound" with varying severities depending on the amount of health the player has (Created a wound and bandage material that should spawn on the player's arm but could not get the player arm mesh to appear) each wound state requires a certain amount of bandage wraps to heal. When in bandaging mode, the player can click the screen to apply bandage wraps. Every wrap fills the coverage bar and once the bar is full the bandage mode is removed and the player's health is restored. There is a limited amount of bandages and one is consumed on every press of the H key.
+ Video Link: https://mmutube.mmu.ac.uk/media/Bandage+Wrap+Mechanic+Demo/1_o0zhj3hd
