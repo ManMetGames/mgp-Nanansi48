@@ -79,7 +79,7 @@ void UBandageComponent::ApplyWrap()
         WrapsApplied * CoveragePerWrap, 0.f, 1.f);
     SpawnWrapDecal(WrapsApplied - 1);
     OnWrapApplied.Broadcast(CurrentWound.CoveragePercent);
-    // End automatically when wound is fully covered OR bandages run out
+    // End automatically when wound is fully covered OR wraps run out
     bool bFullyCovered = WrapsApplied >= CurrentWound.WrapsRequired;
     bool bOutOfWraps = WrapsRemainingInRoll <= 0;
     if (bFullyCovered || bOutOfWraps)
